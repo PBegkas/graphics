@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
+//hello from iolkos
 
 // Include GLEW
 #include <GL/glew.h>
