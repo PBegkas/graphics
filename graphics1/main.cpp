@@ -9,8 +9,7 @@
 
 //hello from iolkos
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
+
 
 // Include GLEW
 #include <GL/glew.h>
@@ -21,6 +20,8 @@ GLFWwindow* window;
 
 // Include GLM
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 using namespace glm;
 
@@ -174,13 +175,13 @@ int main(void)
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 
 	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 500.0f);
 	// Or, for an ortho camera :
 	//glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
 
 	// Camera matrix
 	glm::mat4 View = glm::lookAt(
-		glm::vec3(-30, -30, -30), // Camera is at (4,3,3), in World Space
+		glm::vec3(0, 0, -310), // Camera is at (4,3,3), in World Space
 		glm::vec3(0, 0, 0), // and looks at the origin
 		glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
 	);
@@ -188,14 +189,24 @@ int main(void)
 	glm::mat4 Model = glm::mat4(1.0f);
 
 	// scale the model x50
-	glm::mat4 scaleMatrix = glm::scale(glm::mat4(), glm::vec3(50.0f, 50.0f, 50.0f));
+	//glm::mat4 scaleMatrix;
+	//scaleMatrix = glm::scale(scaleMatrix, glm::vec3(50.0f, 50.0f, 50.0f));
+	//glm::mat4 transformation;
+	
+	Model = glm::scale(Model, glm::vec3(50.0f, 50.0f, 50.0f));
 
 	// "move" the cube
-	glm::mat4 translateMatrix = glm::translate(glm::mat4(), glm::vec3(50.0f, 50.0f, 50.0f));
+	//glm::mat4 translateMatrix;
+	//translateMatrix = glm::translate(translateMatrix, glm::vec3(1.0f, 1.0f, 1.0f));
+
+	Model = glm::translate(Model, glm::vec3(1.0f, 1.0f, 1.0f));
+
 	//Model = myMatrix * Model;
 
+	//Model = transformation * Model;
+
 	// Our ModelViewProjection : multiplication of our 3 matrices
-	glm::mat4 MVP = Projection * View * translateMatrix *scaleMatrix * Model; // Remember, matrix multiplication is the other way around
+	glm::mat4 MVP = Projection * View */* transformation * translateMatrix  *  scaleMatrix */  Model; // Remember, matrix multiplication is the other way around
 
 
 	static const GLfloat g_vertex_buffer_data[] = {
