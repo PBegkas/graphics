@@ -9,6 +9,9 @@
 
 //hello from iolkos
 
+// random lib is used to create random colours for the scene cube
+#include <random>
+
 // Include GLEW
 #include <GL/glew.h>
 
@@ -156,6 +159,58 @@ int main(void)
 	1.0f,-1.0f, 1.0f
 	};
 
+	// random colour for the scene cube
+
+	std::random_device rd;  //Will be used to obtain a seed for the random number engine
+	std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+	std::uniform_real_distribution<> dis(0.0, 1.0);
+
+	float red = dis(gen);
+	float gr = dis(gen);
+	float bl = dis(gen);
+
+
+	static const GLfloat g_color_buffer_data[]{
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+		red, gr, bl,
+	};
+
+
+	/* NEEDS clean up
 	static const GLfloat g_color_buffer_data[] = {
 	0.583f,  0.771f,  0.014f,
 	0.609f,  0.115f,  0.436f,
@@ -194,6 +249,7 @@ int main(void)
 	0.820f,  0.883f,  0.371f,
 	0.982f,  0.099f,  0.879f
 	};
+	*/
 
 	GLuint colorbuffer;
 	glGenBuffers(1, &colorbuffer);
@@ -204,6 +260,11 @@ int main(void)
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+
+	// enable blending used in transparency
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
 	do {
 		// Clear the screen.
