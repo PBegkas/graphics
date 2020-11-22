@@ -28,6 +28,114 @@ using namespace glm;
 // shader files
 #include "shaders.hpp"
 
+void computeMatricesFromInputs();
+glm::mat4 getViewMatrix();
+glm::mat4 getProjectionMatrix();
+
+glm::mat4 ViewMatrix;
+glm::mat4 ProjectionMatrix;
+glm::mat4 ModelMatrix;
+
+glm::mat4 getViewMatrix() {
+	return ViewMatrix;
+}
+glm::mat4 getProjectionMatrix() {
+	return ProjectionMatrix;
+}
+
+// Initial position : on +Z
+glm::vec3 position = glm::vec3(0, 0, 10);
+glm::vec3 zoom = glm::vec3(0, 0, 0);
+// Initial horizontal angle : toward -Z
+float horizontalAngle = 3.14f;
+// Initial vertical angle : none
+float verticalAngle = 0.0f;
+
+// Initial Field of View
+float initialFoV = 45.0f;
+//float roundAngle = 0.0f;
+float upAng = 1.0f;
+
+float speed = 3.0f; // 3 units / second
+
+void computeMatricesFromInputs() {
+
+	// glfwGetTime is called only once, the first time this function is called
+	static double lastTime = glfwGetTime();
+
+	// Compute time difference between current and last frame
+	double currentTime = glfwGetTime();
+	float deltaTime = float(currentTime - lastTime);
+
+	//roundAngle += deltaTime;
+
+	// Direction vector
+	glm::vec3 direction(
+		//cos(verticalAngle) * sin(horizontalAngle),
+		0,
+		sin(verticalAngle),
+		cos(verticalAngle) * cos(horizontalAngle)
+		//2 * cos(verticalAngle - 3.14f / 2.0f)
+	);
+
+	// Right vector
+	glm::vec3 right = glm::vec3(
+		2* sin(horizontalAngle - 3.14f / 2.0f),
+		0,
+		2* cos(horizontalAngle - 3.14f / 2.0f)
+	);
+	
+
+	// Up vector
+	glm::vec3 up = glm::cross(right, direction);
+
+	// Move forward
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+		verticalAngle += 0.01;
+		position += direction * deltaTime * speed;
+	}
+	// Move backward
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+		verticalAngle -= 0.01;
+		position -= direction * deltaTime * speed;
+	}
+	// Strafe right
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+		horizontalAngle += (float)0.01;
+		position += right * deltaTime * speed;
+	}
+	// Strafe left
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+		horizontalAngle -= (float)0.01;
+		position -= right * deltaTime * speed;
+	}
+	// Zoom in
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+		initialFoV -= upAng * deltaTime * speed * 2.0f;
+	}
+	// zoom out
+	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+		initialFoV += upAng * deltaTime * speed * 2.0f;
+	}
+
+
+
+	float FoV = initialFoV;// - 5 * glfwGetMouseWheel(); // Now GLFW 3 requires setting up a callback for this. It's a bit too complicated for this beginner's tutorial, so it's disabled instead.
+
+	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+	ProjectionMatrix = glm::perspective(glm::radians(FoV), 1.0f / 1.0f, 0.1f, 1000.0f);
+	// Camera matrix
+	ViewMatrix = glm::lookAt(
+		position,           // Camera is here
+		//glm::vec3(0, 0, 0) , // and looks here : at the same position, plus "direction"
+		//position + direction,
+		zoom,
+		up                  // Head is up (set to 0,-1,0 to look upside-down)
+	);
+
+	// For the next frame, the "last time" will be "now"
+	lastTime = currentTime;
+}
 
 int main(void)
 {
@@ -55,7 +163,7 @@ int main(void)
 	}
 	glfwMakeContextCurrent(window);
 
-	
+
 	// Initialize GLEW
 	if (glewInit() != GLEW_OK) {
 		fprintf(stderr, "Failed to initialize GLEW\n");
@@ -75,6 +183,9 @@ int main(void)
 	// Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS);
 
+	// Cull triangles which normal is not towards the camera
+	//glEnable(GL_CULL_FACE);
+
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
@@ -86,15 +197,17 @@ int main(void)
 
 	// Projection matrix : 45° Field of View, 1:1 ratio, display range : 0.1 unit <-> 500 units
 	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 1.0f / 1.0f, 0.1f, 500.0f);
-	
+
 	// Camera matrix
-	glm::mat4 View = glm::lookAt(
+	glm::mat4 View = ViewMatrix;
+	/* glm::mat4 View = glm::lookAt(
 		glm::vec3(-15, 0, -310), // Camera is at (-15, 0, -310) in World Space
 		glm::vec3(0, 0, 0), // and looks at the origin
 		glm::vec3(0, 1, 0)  // Head is up 
 	);
 
 	View = glm::rotate(View, glm::radians(40.0f), glm::vec3(1.0, 0.0, 0.0));
+	*/
 	// Our Model matrix
 	glm::mat4 Model = glm::mat4(1.0f);
 
@@ -217,6 +330,13 @@ int main(void)
 
 		glUseProgram(programID);
 
+		// Compute the MVP matrix from keyboard and mouse input
+		computeMatricesFromInputs();
+		glm::mat4 ProjectionMatrix = getProjectionMatrix();
+		glm::mat4 ViewMatrix = getViewMatrix();
+		glm::mat4 ModelMatrix = glm::mat4(1.0);
+		glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+
 		// Send our transformation, to the currently bound shader,  in the "MVP" uniform
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
@@ -245,7 +365,7 @@ int main(void)
 		);
 
 		// Triangle drawing
-		glDrawArrays(GL_TRIANGLES, 0, 12*3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+		glDrawArrays(GL_TRIANGLES, 0, 12 * 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 
