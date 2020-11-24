@@ -154,7 +154,7 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Window making process
-	window = glfwCreateWindow(600, 600, u8"Συγκρουόμενα", NULL, NULL);
+	window = glfwCreateWindow(600, 600, "Συγκρουόμενα", NULL, NULL);
 	if (window == NULL) {
 		fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
 		getchar();
@@ -221,12 +221,12 @@ int main(void)
 	glm::mat4 MVP = Projection * View */* transformation * translateMatrix  *  scaleMatrix */  Model;
 
 	static const GLfloat g_vertex_buffer_data[] = {
-	-1.0f,-1.0f,-1.0f, // triangle 1 : begin
+	-1.0f,-1.0f,-1.0f, 
 	-1.0f,-1.0f, 1.0f,
-	-1.0f, 1.0f, 1.0f, // triangle 1 : end
-	1.0f, 1.0f,-1.0f, // triangle 2 : begin
+	-1.0f, 1.0f, 1.0f, 
+	1.0f, 1.0f,-1.0f, 
 	-1.0f,-1.0f,-1.0f,
-	-1.0f, 1.0f,-1.0f, // triangle 2 : end, etc
+	-1.0f, 1.0f,-1.0f, 
 	1.0f,-1.0f, 1.0f,
 	-1.0f,-1.0f,-1.0f,
 	1.0f,-1.0f,-1.0f,
@@ -267,7 +267,7 @@ int main(void)
 	float red = dis(gen);
 	float gr = dis(gen);
 	float bl = dis(gen);
-
+	
 
 	static const GLfloat g_color_buffer_data[]{
 		red, gr, bl,
