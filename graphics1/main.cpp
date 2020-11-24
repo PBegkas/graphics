@@ -47,8 +47,8 @@ glm::mat4 getProjectionMatrix() {
 }
 
 // Initial position : on +Z
-glm::vec3 position = glm::vec3(0, 0, 10);
-//glm::vec3 zoom = glm::vec3(0, 0, 0);
+glm::vec3 position = glm::vec3(100, 100, 700);
+glm::vec3 Look = glm::vec3(50, 50, 50);
 // Initial horizontal angle
 float horizontalAngle = 3.14f;
 // Initial vertical angle
@@ -62,7 +62,7 @@ float head_pos = 1.0f;
 // Angle of camera head
 float head_ang = 0.1f;
 // Movement spped; arbitrary value of 3u/s
-float speed = 1.0f;
+float speed = 150.0f;
 
 void computeMatricesFromInputs() {
 
@@ -120,11 +120,11 @@ void computeMatricesFromInputs() {
 	}
 	// Zoom in
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-		initialFoV -= zoomAngle * deltaTime * speed * 2.0f;
+		initialFoV -= zoomAngle * deltaTime * speed * 0.1f;
 	}
 	// zoom out
 	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
-		initialFoV += zoomAngle * deltaTime * speed * 2.0f;
+		initialFoV += zoomAngle * deltaTime * speed * 0.1f;
 	}
 	if (head_ang - (0.785 * floor(head_ang / 0.785)) == 0) {
 		head_pos = head_pos * -1;
@@ -138,7 +138,7 @@ void computeMatricesFromInputs() {
 	// Camera matrix
 	ViewMatrix = glm::lookAt(
 		position,      // camera is here
-		vec3(0, 0, 0), //and looks here
+		Look, //and looks here
 		vec3(0, head_pos, 0)             // Head is up or down
 	);
 
