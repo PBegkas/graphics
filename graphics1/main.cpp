@@ -47,7 +47,7 @@ glm::mat4 getProjectionMatrix() {
 }
 
 // Initial position : on +Z
-glm::vec3 position = glm::vec3(100, 100, 700);
+glm::vec3 position = glm::vec3(150, 150, 700);
 glm::vec3 Look = glm::vec3(50, 50, 50);
 // Initial horizontal angle
 float horizontalAngle = 3.14f;
@@ -61,7 +61,7 @@ float zoomAngle = 1.0f;
 float head_pos = 1.0f;
 // Angle of camera head
 float head_ang = 0.1f;
-// Movement spped; arbitrary value of 3u/s
+// Movement speed; arbitrary value of 150 u/s
 float speed = 150.0f;
 
 void computeMatricesFromInputs() {
@@ -73,14 +73,7 @@ void computeMatricesFromInputs() {
 	double currentTime = glfwGetTime();
 	float deltaTime = float(currentTime - lastTime);
 
-	//roundAngle += deltaTime;
-
-	// Direction vector
-	glm::vec3 direction = glm::vec3(
-		0,
-		cos(verticalAngle - 3.14f / 2.0f),
-		sin(verticalAngle - 3.14f / 2.0f)
-	);
+	// Direction vector (Doesn't work, head doesnt cooperate)
 	/* glm::vec3 direction(
 		//cos(verticalAngle) * sin(horizontalAngle),
 		0,
@@ -91,23 +84,24 @@ void computeMatricesFromInputs() {
 
 	// Right vector
 	glm::vec3 right = glm::vec3(
-		2 * sin(horizontalAngle - 3.14f / 2.0f),
+		3 * sin(horizontalAngle - 3.14f / 2.0f),
 		0,
-		2 * cos(horizontalAngle - 3.14f / 2.0f)
+		3 * cos(horizontalAngle - 3.14f / 2.0f)
 	);
-
+	/*
 	// Rotate up
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
 		verticalAngle += 0.01;
 		head_ang += 0.01;
 		position += direction * deltaTime * speed;
 	}
 	// Rotate down
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
 		verticalAngle -= 0.01;
 		head_ang += 0.01;
 		position -= direction * deltaTime * speed;
 	}
+	*/
 	// Rotate right
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 		horizontalAngle += (float)0.01;
@@ -119,11 +113,11 @@ void computeMatricesFromInputs() {
 		position -= right * deltaTime * speed;
 	}
 	// Zoom in
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		initialFoV -= zoomAngle * deltaTime * speed * 0.1f;
 	}
 	// zoom out
-	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
 		initialFoV += zoomAngle * deltaTime * speed * 0.1f;
 	}
 	if (head_ang - (0.785 * floor(head_ang / 0.785)) == 0) {
@@ -131,15 +125,15 @@ void computeMatricesFromInputs() {
 	}
 
 
-	float FoV = initialFoV;// - 5 * glfwGetMouseWheel(); // Now GLFW 3 requires setting up a callback for this. It's a bit too complicated for this beginner's tutorial, so it's disabled instead.
+	float FoV = initialFoV;
 
-	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+	// Projection matrix : gets dynamic FoV for zoom
 	ProjectionMatrix = glm::perspective(glm::radians(FoV), 1.0f / 1.0f, 0.1f, 1000.0f);
 	// Camera matrix
 	ViewMatrix = glm::lookAt(
-		position,      // camera is here
-		Look, //and looks here
-		vec3(0, head_pos, 0)             // Head is up or down
+		position,           // camera is here
+		Look,			    // looks here
+		vec3(0, head_pos, 0)// Head is up or down
 	);
 
 	// For the next frame, the "last time" will be "now"
@@ -204,8 +198,8 @@ int main(void)
 	// Get a handle for our "MVP" uniform
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 
-	// Projection matrix : 45° Field of View, 1:1 ratio, display range : 0.1 unit <-> 500 units
-	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 1.0f / 1.0f, 0.1f, 500.0f);
+	// Projection matrix : 45° Field of View, 1:1 ratio, display range : 0.1 unit <-> 1000 units
+	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 1.0f / 1.0f, 0.1f, 1000.0f);
 
 	// Camera matrix
 	glm::mat4 View = ViewMatrix;
@@ -218,36 +212,30 @@ int main(void)
 	View = glm::rotate(View, glm::radians(40.0f), glm::vec3(1.0, 0.0, 0.0));
 	*/
 
-	// read the scene cube
+	/*// read the scene cube
 	std::vector<glm::vec3> scnCubeVert;
 	std::vector<glm::vec2> scnCubeUvs;
 	std::vector<glm::vec3> scnCubeNormals;
-	bool res1 = loadOBJ("scnCube.obj", scnCubeVert, scnCubeUvs, scnCubeNormals);
-
-	// read the big sphere
-	std::vector<glm::vec3> scnSphVert;
-	std::vector<glm::vec2> scnSphUvs;
-	std::vector<glm::vec3> scnSphNormals;
-	bool res2 = loadOBJ("SPH.obj", scnSphVert, scnSphUvs, scnSphNormals);
-	
+	bool res = loadOBJ("cylinder.obj", scnCubeVert, scnCubeUvs, scnCubeNormals);
+	*/
 	// read the cylinder
 	std::vector<glm::vec3> cylVert;
 	std::vector<glm::vec2> cylUvs;
 	std::vector<glm::vec3> cylNormals;
-	bool res3 = loadOBJ("cylinder.obj", cylVert, cylUvs, cylNormals);
+	bool res = loadOBJ("scnCube.obj", cylVert, cylUvs, cylNormals);
 
-	// read the sphere
+	/*// read the sphere
 	std::vector<glm::vec3> sphVert;
 	std::vector<glm::vec2> sphUvs;
 	std::vector<glm::vec3> sphNormals;
-	bool res4 = loadOBJ("sphere.obj", sphVert, sphUvs, sphNormals);
-	
-	// read the cube
+	bool res = loadOBJ("cylinder.obj", sphVert, sphUvs, sphNormals);
+	*/
+	/*// read the cube
 	std::vector<glm::vec3> cubVert;
 	std::vector<glm::vec2> cubUvs;
 	std::vector<glm::vec3> cubNormals;
-	bool res5 = loadOBJ("cube.obj", cubVert, cubUvs, cubNormals);
-	
+	bool res = loadOBJ("cylinder.obj", cubVert, cubUvs, cubNormals);
+	*/
 
 
 	/*GLuint vertexbuffer;
@@ -272,7 +260,6 @@ int main(void)
 
 	// Our ModelViewProjection matrix
 	glm::mat4 MVP = Projection * View * Model;
-
 	/*
 	static const GLfloat g_vertex_buffer_data[] = {
 	-1.0f,-1.0f,-1.0f,
@@ -323,10 +310,10 @@ int main(void)
 	float red = dis(gen);
 	float gr = dis(gen);
 	float bl = dis(gen);
-	float trans = 0.5f; // this is the transparency of the scn cube
+	float trans = 0.5f;
 
 
-	static const GLfloat scnCubeColorBufferData[]{
+	static const GLfloat g_color_buffer_data[]{
 		red, gr, bl, trans,
 		red, gr, bl, trans,
 		red, gr, bl, trans,
@@ -366,18 +353,15 @@ int main(void)
 	};
 
 
-	GLuint scnCubeColorbuffer;
-	glGenBuffers(1, &scnCubeColorbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, scnCubeColorbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(scnCubeColorBufferData), scnCubeColorBufferData, GL_STATIC_DRAW);
+	GLuint colorbuffer;
+	glGenBuffers(1, &colorbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
 
-	GLuint scnCuveVertexbuffer;
-	glGenBuffers(1, &scnCuveVertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, scnCuveVertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, scnCubeVert.size() * sizeof(glm::vec3), &scnCubeVert[0], GL_STATIC_DRAW);
-
-
-	
+	GLuint vertexbuffer;
+	glGenBuffers(1, &vertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	glBufferData(GL_ARRAY_BUFFER, cylVert.size() * sizeof(glm::vec3), &cylVert[0], GL_STATIC_DRAW);
 
 	//GLuint vertexbuffer;
 	//glGenBuffers(1, &vertexbuffer);
@@ -407,7 +391,7 @@ int main(void)
 
 		// 1st attribute buffer : vertices
 		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, scnCuveVertexbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 		glVertexAttribPointer(
 			0,                  // attribute 0
 			3,                  // size
@@ -419,7 +403,7 @@ int main(void)
 
 		// 2nd attribute buffer : colors
 		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, scnCubeColorbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
 		glVertexAttribPointer(
 			1,                                // attribute 1, matches the layout in the shader.
 			4,                                // size
@@ -443,8 +427,8 @@ int main(void)
 		glfwWindowShouldClose(window) == 0);
 
 	// Cleanup VBO
-	glDeleteBuffers(1, &scnCuveVertexbuffer);
-	glDeleteBuffers(1, &scnCubeColorbuffer);
+	glDeleteBuffers(1, &vertexbuffer);
+	glDeleteBuffers(1, &colorbuffer);
 	glDeleteVertexArrays(1, &VertexArrayID);
 	glDeleteProgram(programID);
 
