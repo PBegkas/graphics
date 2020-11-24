@@ -266,7 +266,7 @@ int main(void)
 
 	// Our ModelViewProjection matrix
 	glm::mat4 MVP = Projection * View * Model;
-
+	/*
 	static const GLfloat g_vertex_buffer_data[] = {
 	-1.0f,-1.0f,-1.0f,
 	-1.0f,-1.0f, 1.0f,
