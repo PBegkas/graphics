@@ -218,30 +218,36 @@ int main(void)
 	View = glm::rotate(View, glm::radians(40.0f), glm::vec3(1.0, 0.0, 0.0));
 	*/
 
-	/*// read the scene cube
+	// read the scene cube
 	std::vector<glm::vec3> scnCubeVert;
 	std::vector<glm::vec2> scnCubeUvs;
 	std::vector<glm::vec3> scnCubeNormals;
-	bool res = loadOBJ("cylinder.obj", scnCubeVert, scnCubeUvs, scnCubeNormals);
-	*/
+	bool res1 = loadOBJ("scnCube.obj", scnCubeVert, scnCubeUvs, scnCubeNormals);
+
+	// read the big sphere
+	std::vector<glm::vec3> scnSphVert;
+	std::vector<glm::vec2> scnSphUvs;
+	std::vector<glm::vec3> scnSphNormals;
+	bool res2 = loadOBJ("SPH.obj", scnSphVert, scnSphUvs, scnSphNormals);
+	
 	// read the cylinder
 	std::vector<glm::vec3> cylVert;
 	std::vector<glm::vec2> cylUvs;
 	std::vector<glm::vec3> cylNormals;
-	bool res = loadOBJ("scnCube.obj", cylVert, cylUvs, cylNormals);
+	bool res3 = loadOBJ("cylinder.obj", cylVert, cylUvs, cylNormals);
 
-	/*// read the sphere
+	// read the sphere
 	std::vector<glm::vec3> sphVert;
 	std::vector<glm::vec2> sphUvs;
 	std::vector<glm::vec3> sphNormals;
-	bool res = loadOBJ("cylinder.obj", sphVert, sphUvs, sphNormals);
-	*/
-	/*// read the cube
+	bool res4 = loadOBJ("sphere.obj", sphVert, sphUvs, sphNormals);
+	
+	// read the cube
 	std::vector<glm::vec3> cubVert;
 	std::vector<glm::vec2> cubUvs;
 	std::vector<glm::vec3> cubNormals;
-	bool res = loadOBJ("cylinder.obj", cubVert, cubUvs, cubNormals);
-	*/
+	bool res5 = loadOBJ("cube.obj", cubVert, cubUvs, cubNormals);
+	
 
 
 	/*GLuint vertexbuffer;
@@ -266,6 +272,7 @@ int main(void)
 
 	// Our ModelViewProjection matrix
 	glm::mat4 MVP = Projection * View * Model;
+
 	/*
 	static const GLfloat g_vertex_buffer_data[] = {
 	-1.0f,-1.0f,-1.0f,
@@ -316,10 +323,10 @@ int main(void)
 	float red = dis(gen);
 	float gr = dis(gen);
 	float bl = dis(gen);
-	float trans = 1.0f;
+	float trans = 0.5f; // this is the transparency of the scn cube
 
 
-	static const GLfloat g_color_buffer_data[]{
+	static const GLfloat scnCubeColorBufferData[]{
 		red, gr, bl, trans,
 		red, gr, bl, trans,
 		red, gr, bl, trans,
@@ -359,15 +366,18 @@ int main(void)
 	};
 
 
-	GLuint colorbuffer;
-	glGenBuffers(1, &colorbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
+	GLuint scnCubeColorbuffer;
+	glGenBuffers(1, &scnCubeColorbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, scnCubeColorbuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(scnCubeColorBufferData), scnCubeColorBufferData, GL_STATIC_DRAW);
 
-	GLuint vertexbuffer;
-	glGenBuffers(1, &vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, cylVert.size() * sizeof(glm::vec3), &cylVert[0], GL_STATIC_DRAW);
+	GLuint scnCuveVertexbuffer;
+	glGenBuffers(1, &scnCuveVertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, scnCuveVertexbuffer);
+	glBufferData(GL_ARRAY_BUFFER, scnCubeVert.size() * sizeof(glm::vec3), &scnCubeVert[0], GL_STATIC_DRAW);
+
+
+	
 
 	//GLuint vertexbuffer;
 	//glGenBuffers(1, &vertexbuffer);
@@ -397,7 +407,7 @@ int main(void)
 
 		// 1st attribute buffer : vertices
 		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, scnCuveVertexbuffer);
 		glVertexAttribPointer(
 			0,                  // attribute 0
 			3,                  // size
@@ -409,7 +419,7 @@ int main(void)
 
 		// 2nd attribute buffer : colors
 		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, scnCubeColorbuffer);
 		glVertexAttribPointer(
 			1,                                // attribute 1, matches the layout in the shader.
 			4,                                // size
@@ -433,8 +443,8 @@ int main(void)
 		glfwWindowShouldClose(window) == 0);
 
 	// Cleanup VBO
-	glDeleteBuffers(1, &vertexbuffer);
-	glDeleteBuffers(1, &colorbuffer);
+	glDeleteBuffers(1, &scnCuveVertexbuffer);
+	glDeleteBuffers(1, &scnCubeColorbuffer);
 	glDeleteVertexArrays(1, &VertexArrayID);
 	glDeleteProgram(programID);
 
