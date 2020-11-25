@@ -212,30 +212,36 @@ int main(void)
 	View = glm::rotate(View, glm::radians(40.0f), glm::vec3(1.0, 0.0, 0.0));
 	*/
 
-	/*// read the scene cube
+	// read the scene cube
 	std::vector<glm::vec3> scnCubeVert;
 	std::vector<glm::vec2> scnCubeUvs;
 	std::vector<glm::vec3> scnCubeNormals;
-	bool res = loadOBJ("cylinder.obj", scnCubeVert, scnCubeUvs, scnCubeNormals);
-	*/
+	bool res1 = loadOBJ("scnCube.obj", scnCubeVert, scnCubeUvs, scnCubeNormals);
+
+	// read the big sphere
+	std::vector<glm::vec3> scnSphVert;
+	std::vector<glm::vec2> scnSphUvs;
+	std::vector<glm::vec3> scnSphNormals;
+	bool res2 = loadOBJ("SPH.obj", scnSphVert, scnSphUvs, scnSphNormals);
+
 	// read the cylinder
 	std::vector<glm::vec3> cylVert;
 	std::vector<glm::vec2> cylUvs;
 	std::vector<glm::vec3> cylNormals;
-	bool res = loadOBJ("scnCube.obj", cylVert, cylUvs, cylNormals);
+	bool res3 = loadOBJ("cylinder.obj", cylVert, cylUvs, cylNormals);
 
-	/*// read the sphere
+	// read the sphere
 	std::vector<glm::vec3> sphVert;
 	std::vector<glm::vec2> sphUvs;
 	std::vector<glm::vec3> sphNormals;
-	bool res = loadOBJ("cylinder.obj", sphVert, sphUvs, sphNormals);
-	*/
-	/*// read the cube
+	bool res4 = loadOBJ("sphere.obj", sphVert, sphUvs, sphNormals);
+
+	// read the cube
 	std::vector<glm::vec3> cubVert;
 	std::vector<glm::vec2> cubUvs;
 	std::vector<glm::vec3> cubNormals;
-	bool res = loadOBJ("cylinder.obj", cubVert, cubUvs, cubNormals);
-	*/
+	bool res5 = loadOBJ("cube.obj", cubVert, cubUvs, cubNormals);
+
 
 
 	/*GLuint vertexbuffer;
@@ -260,6 +266,7 @@ int main(void)
 
 	// Our ModelViewProjection matrix
 	glm::mat4 MVP = Projection * View * Model;
+
 	/*
 	static const GLfloat g_vertex_buffer_data[] = {
 	-1.0f,-1.0f,-1.0f,
@@ -310,10 +317,40 @@ int main(void)
 	float red = dis(gen);
 	float gr = dis(gen);
 	float bl = dis(gen);
-	float trans = 0.5f;
+	float trans = 0.5f; // this is the transparency of the scn cube
+
+	//////////////////
+	// vert sizes:
+	// cube 36
+	// sphere 2880
+	// cylinder 372
+	//////////////////
 
 
-	static const GLfloat g_color_buffer_data[]{
+	GLfloat scnCubeColorBufferData[36 * 4];
+
+	for (int i = 0; i < 36; i++) {
+		int j = i * 4;
+		scnCubeColorBufferData[j] = red;
+		scnCubeColorBufferData[j + 1] = gr;
+		scnCubeColorBufferData[j + 2] = bl;
+		scnCubeColorBufferData[j + 3] = trans;
+	}
+
+
+	GLfloat scnSphColorBufferData[2880 * 4];
+
+	for (int i = 0; i < 2880; i++) {
+		int j = i * 4;
+		scnSphColorBufferData[j] = 1;
+		scnSphColorBufferData[j + 1] = 0;
+		scnSphColorBufferData[j + 2] = 0;
+		scnSphColorBufferData[j + 3] = 1;
+	}
+
+
+
+	/*static const GLfloat scnCubeColorBufferData[]{
 		red, gr, bl, trans,
 		red, gr, bl, trans,
 		red, gr, bl, trans,
@@ -351,17 +388,34 @@ int main(void)
 		red, gr, bl, trans,
 		red, gr, bl, trans
 	};
+	*/
 
 
-	GLuint colorbuffer;
-	glGenBuffers(1, &colorbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
 
-	GLuint vertexbuffer;
-	glGenBuffers(1, &vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, cylVert.size() * sizeof(glm::vec3), &cylVert[0], GL_STATIC_DRAW);
+	// these are for the scene cube
+	GLuint scnCubeColorbuffer;
+	glGenBuffers(1, &scnCubeColorbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, scnCubeColorbuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(scnCubeColorBufferData), scnCubeColorBufferData, GL_STATIC_DRAW);
+
+	GLuint scnCubeVertexbuffer;
+	glGenBuffers(1, &scnCubeVertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, scnCubeVertexbuffer);
+	glBufferData(GL_ARRAY_BUFFER, scnCubeVert.size() * sizeof(glm::vec3), &scnCubeVert[0], GL_STATIC_DRAW);
+
+
+	// these are for the big red sphere
+	GLuint scnSphColorbuffer;
+	glGenBuffers(1, &scnSphColorbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, scnSphColorbuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(scnSphColorBufferData), scnSphColorBufferData, GL_STATIC_DRAW);
+
+	GLuint scnSphVertexbuffer;
+	glGenBuffers(1, &scnSphVertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, scnSphVertexbuffer);
+	glBufferData(GL_ARRAY_BUFFER, scnSphVert.size() * sizeof(glm::vec3), &scnSphVert[0], GL_STATIC_DRAW);
+
+
 
 	//GLuint vertexbuffer;
 	//glGenBuffers(1, &vertexbuffer);
@@ -389,9 +443,11 @@ int main(void)
 		// Send our transformation, to the currently bound shader,  in the "MVP" uniform
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-		// 1st attribute buffer : vertices
+
+
+		// scene cube vertex buffer
 		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, scnCubeVertexbuffer);
 		glVertexAttribPointer(
 			0,                  // attribute 0
 			3,                  // size
@@ -401,9 +457,9 @@ int main(void)
 			(void*)0            // array buffer offset
 		);
 
-		// 2nd attribute buffer : colors
+		// scene cube colour buffer
 		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, scnCubeColorbuffer);
 		glVertexAttribPointer(
 			1,                                // attribute 1, matches the layout in the shader.
 			4,                                // size
@@ -412,6 +468,35 @@ int main(void)
 			0,                                // stride
 			(void*)0                          // array buffer offset
 		);
+
+
+		/*
+		// scene sphere vertex buffer
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, scnSphVertexbuffer);
+		glVertexAttribPointer(
+			0,                  // attribute 0
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // not normalized
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
+
+		// scene sphere colour buffer
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, scnSphColorbuffer);
+		glVertexAttribPointer(
+			1,                                // attribute 1, matches the layout in the shader.
+			4,                                // size
+			GL_FLOAT,                         // type
+			GL_FALSE,                         // not normalized
+			0,                                // stride
+			(void*)0                          // array buffer offset
+		);
+
+		*/
+
 
 		// Triangle drawing
 		glDrawArrays(GL_TRIANGLES, 0, 12 * 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
@@ -427,8 +512,8 @@ int main(void)
 		glfwWindowShouldClose(window) == 0);
 
 	// Cleanup VBO
-	glDeleteBuffers(1, &vertexbuffer);
-	glDeleteBuffers(1, &colorbuffer);
+	glDeleteBuffers(1, &scnSphVertexbuffer);
+	glDeleteBuffers(1, &scnSphColorbuffer);
 	glDeleteVertexArrays(1, &VertexArrayID);
 	glDeleteProgram(programID);
 
