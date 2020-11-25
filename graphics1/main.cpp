@@ -389,32 +389,64 @@ int main(void)
 		red, gr, bl, trans
 	};
 	*/
+	/*
+	GLuint	vboVerticesID[2];
+	glGenBuffers(2, vboVerticesID);
 
+	GLuint Colorbuffer[2];
+	glGenBuffers(2, Colorbuffer);
 
+	glBindBuffer(GL_ARRAY_BUFFER, vboVerticesID[0]);
+	glBufferData(GL_ARRAY_BUFFER, scnCubeVert.size() * sizeof(glm::vec3), &scnCubeVert, GL_STATIC_DRAW);
 
-	// these are for the scene cube
-	GLuint scnCubeColorbuffer;
-	glGenBuffers(1, &scnCubeColorbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, scnCubeColorbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, Colorbuffer[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(scnCubeColorBufferData), scnCubeColorBufferData, GL_STATIC_DRAW);
 
-	GLuint scnCubeVertexbuffer;
-	glGenBuffers(1, &scnCubeVertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, scnCubeVertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, scnCubeVert.size() * sizeof(glm::vec3), &scnCubeVert[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, vboVerticesID[1]);
+	glBufferData(GL_ARRAY_BUFFER, scnSphVert.size() * sizeof(glm::vec3), &scnSphVert, GL_STATIC_DRAW);
 
+	glBindBuffer(GL_ARRAY_BUFFER, Colorbuffer[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(scnSphColorBufferData), scnSphColorBufferData, GL_STATIC_DRAW);
+	*/
+
+	/*
+	GLuint Colorbuffer;
+	glGenBuffers(2, &scnCubeColorbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, scnCubeColorbuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(scnCubeColorBufferData), scnCubeColorBufferData, GL_STATIC_DRAW);
+	
+
+
+	GLuint Vertexbuffer;
+	glGenBuffers(2, &vecarray);
+	glBindBuffer(GL_ARRAY_BUFFER, vecarray[1]);
+	glBufferData(GL_ARRAY_BUFFER, scnCubeVert.size() * sizeof(glm::vec3), &scnCubeVert[0], GL_STATIC_DRAW);
+	*/
+
+	
+	// these are for the scene cube
+	GLuint scnCubeColorbuffer[2];
+	glGenBuffers(2, &scnCubeColorbuffer[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, scnCubeColorbuffer[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(scnCubeColorBufferData), scnCubeColorBufferData, GL_STATIC_DRAW);
+
+	GLuint scnCubeVertexbuffer[2];
+	glGenBuffers(2, &scnCubeVertexbuffer[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, scnCubeVertexbuffer[0]);
+	glBufferData(GL_ARRAY_BUFFER, scnCubeVert.size() * sizeof(glm::vec3), &scnCubeVert[0], GL_STATIC_DRAW);
+	
 
 	// these are for the big red sphere
-	GLuint scnSphColorbuffer;
-	glGenBuffers(1, &scnSphColorbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, scnSphColorbuffer);
+	//GLuint scnSphColorbuffer;
+	//glGenBuffers(1, &scnSphColorbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, scnCubeColorbuffer[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(scnSphColorBufferData), scnSphColorBufferData, GL_STATIC_DRAW);
 
-	GLuint scnSphVertexbuffer;
-	glGenBuffers(1, &scnSphVertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, scnSphVertexbuffer);
+	//GLuint scnSphVertexbuffer;
+	//glGenBuffers(1, &scnSphVertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, scnCubeVertexbuffer[1]);
 	glBufferData(GL_ARRAY_BUFFER, scnSphVert.size() * sizeof(glm::vec3), &scnSphVert[0], GL_STATIC_DRAW);
-
+	
 
 
 	//GLuint vertexbuffer;
@@ -447,7 +479,7 @@ int main(void)
 
 		// scene cube vertex buffer
 		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, scnCubeVertexbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, scnCubeVertexbuffer[0]);
 		glVertexAttribPointer(
 			0,                  // attribute 0
 			3,                  // size
@@ -459,7 +491,7 @@ int main(void)
 
 		// scene cube colour buffer
 		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, scnCubeColorbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, scnCubeColorbuffer[0]);
 		glVertexAttribPointer(
 			1,                                // attribute 1, matches the layout in the shader.
 			4,                                // size
@@ -469,11 +501,15 @@ int main(void)
 			(void*)0                          // array buffer offset
 		);
 
+		// cube drawing
+		glDrawArrays(GL_TRIANGLES, 0, 36); // Starting from vertex 0; 3 vertices total -> 1 triangle
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
 
-		/*
+		
 		// scene sphere vertex buffer
 		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, scnSphVertexbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, scnCubeVertexbuffer[1]);
 		glVertexAttribPointer(
 			0,                  // attribute 0
 			3,                  // size
@@ -483,9 +519,11 @@ int main(void)
 			(void*)0            // array buffer offset
 		);
 
+	
+
 		// scene sphere colour buffer
 		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, scnSphColorbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, scnCubeColorbuffer[1]);
 		glVertexAttribPointer(
 			1,                                // attribute 1, matches the layout in the shader.
 			4,                                // size
@@ -495,13 +533,15 @@ int main(void)
 			(void*)0                          // array buffer offset
 		);
 
-		*/
-
-
-		// Triangle drawing
-		glDrawArrays(GL_TRIANGLES, 0, 12 * 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+		// sphere drawing
+		glDrawArrays(GL_TRIANGLES, 0, 2880); // Starting from vertex 0; 3 vertices total -> 1 triangle
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
+		 
+		
+
+
+		
 
 		// Swap buffers
 		glfwSwapBuffers(window);
@@ -512,8 +552,10 @@ int main(void)
 		glfwWindowShouldClose(window) == 0);
 
 	// Cleanup VBO
+	/*glDeleteBuffers(1, &scnCubeVertexbuffer);
+	glDeleteBuffers(1, &scnCubeColorbuffer);
 	glDeleteBuffers(1, &scnSphVertexbuffer);
-	glDeleteBuffers(1, &scnSphColorbuffer);
+	glDeleteBuffers(1, &scnSphColorbuffer);*/
 	glDeleteVertexArrays(1, &VertexArrayID);
 	glDeleteProgram(programID);
 
