@@ -332,10 +332,10 @@ int main(void)
 
 	for (int i = 0; i < 2880; i++) {
 		int j = i * 4;
-		scnSphtexBufferData[j] = 0;
-		scnSphtexBufferData[j + 1] = 0;
-		scnSphtexBufferData[j + 2] = 0;
-		scnSphtexBufferData[j + 3] = 0;
+		scnSphtexBufferData[j] = 1;
+		scnSphtexBufferData[j + 1] = 1;
+		scnSphtexBufferData[j + 2] = 1;
+		scnSphtexBufferData[j + 3] = 1;
 	}
 
 
@@ -405,12 +405,12 @@ int main(void)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(0);
 
-	/*
+	
 	// SPH colour buffer
 	glBindBuffer(GL_ARRAY_BUFFER, uvcolbuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(scnSphtexBufferData), scnSphtexBufferData, GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glEnableVertexAttribArray(1);*/
+	glEnableVertexAttribArray(1);
 
 	// SPH uv buffer (texture)
 	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
@@ -426,6 +426,8 @@ int main(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	bool spawn = true;
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_ALWAYS);
 
 	do {
 
@@ -485,9 +487,11 @@ int main(void)
 			//glBindVertexArray(vao[2]);
 			//glDrawElements(GL_TRIANGLES, 2880, GL_UNSIGNED_INT, 0);
 
-
+			
 			glBindVertexArray(vao[2]);
+			glDepthFunc(GL_LESS);
 			glDrawArrays(GL_TRIANGLES, 0, 2880);
+			glDepthFunc(GL_ALWAYS);
 		
 		}
 
