@@ -490,11 +490,6 @@ int main(void)
 		glDrawArrays(GL_TRIANGLES, 0, 360);
 
 
-		if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
-			tex == false;
-		}
-
-
 		// Swap buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
