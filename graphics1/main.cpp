@@ -47,7 +47,7 @@ glm::mat4 getProjectionMatrix() {
 }
 
 // Initial position : on +Z
-glm::vec3 position = glm::vec3(150, 150, 700);
+glm::vec3 position = glm::vec3(50, 50, 500);
 glm::vec3 Look = glm::vec3(50, 50, 50);
 // Initial horizontal angle
 float horizontalAngle = 3.14f;
@@ -84,9 +84,9 @@ void computeMatricesFromInputs() {
 
 	// Right vector
 	glm::vec3 right = glm::vec3(
-		3 * sin(horizontalAngle - 3.14f / 2.0f),
+		2 * sin(horizontalAngle - 3.14f / 2.0f),
 		0,
-		3 * cos(horizontalAngle - 3.14f / 2.0f)
+		2 * cos(horizontalAngle - 3.14f / 2.0f)
 	);
 	/*
 	// Rotate up
@@ -202,7 +202,6 @@ int main(void)
 		glm::vec3(0, 0, 0), // and looks at the origin
 		glm::vec3(0, 1, 0)  // Head is up
 	);
-
 	View = glm::rotate(View, glm::radians(40.0f), glm::vec3(1.0, 0.0, 0.0));
 	*/
 
@@ -252,7 +251,7 @@ int main(void)
 	// Our ModelViewProjection matrix
 	glm::mat4 MVP = Projection * View * Model;
 
-	
+
 
 	// random colour for the scene cube
 	std::random_device rd;  //Will be used to obtain a seed for the random number engine
@@ -294,7 +293,7 @@ int main(void)
 		scnSphColorBufferData[j + 3] = 1;
 	}
 
-	
+
 	// these are for the scene cube
 
 	GLuint scnCubeVertexbuffer;
@@ -318,7 +317,7 @@ int main(void)
 
 
 	glBindVertexArray(0);
-	
+
 	// these are for the big red sphere
 
 	GLuint scnSphVertexbuffer;
@@ -342,7 +341,7 @@ int main(void)
 
 
 	glBindVertexArray(0);
-	
+
 
 	// Enable blending used in transparency
 	glEnable(GL_BLEND);
@@ -378,7 +377,7 @@ int main(void)
 
 
 
-		
+
 
 		// Swap buffers
 		glfwSwapBuffers(window);
