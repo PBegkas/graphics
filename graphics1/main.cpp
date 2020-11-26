@@ -48,7 +48,7 @@ glm::mat4 getProjectionMatrix() {
 
 // Initial position : on +Z
 glm::vec3 position = glm::vec3(150, 150, 700);
-glm::vec3 Look = glm::vec3(100, 100, 50);
+glm::vec3 Look = glm::vec3(50, 50, 50);
 // Initial horizontal angle
 float horizontalAngle = 3.14f;
 // Initial vertical angle
@@ -182,16 +182,19 @@ int main(void)
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 	// Enable depth test
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 	// Accept fragment if it closer to the camera than the former one
-	glDepthFunc(GL_LESS);
+	//glDepthFunc(GL_LESS);
 
 	// Cull triangles which normal is not towards the camera
 	//glEnable(GL_CULL_FACE);
 
-	GLuint VertexArrayID;
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
+	GLuint vao[2];
+	glGenVertexArrays(2, vao);
+	//glBindVertexArray(VertexArrayID);
+
+
+
 
 	GLuint programID = LoadShaders("core.vs", "core.fs");
 
@@ -258,11 +261,6 @@ int main(void)
 	// Our Model matrix
 	glm::mat4 Model = glm::mat4(1.0f);
 
-	// scale the model x50
-	//Model = glm::scale(Model, glm::vec3(50.0f, 50.0f, 50.0f));
-
-	// "move" the cube
-	//Model = glm::translate(Model, glm::vec3(1.0f, 1.0f, 1.0f));
 
 	// Our ModelViewProjection matrix
 	glm::mat4 MVP = Projection * View * Model;
@@ -326,6 +324,7 @@ int main(void)
 	// cylinder 372
 	//////////////////
 
+	//GLfloat vbo[2];
 
 	GLfloat scnCubeColorBufferData[36 * 4];
 
@@ -423,36 +422,60 @@ int main(void)
 	glBufferData(GL_ARRAY_BUFFER, scnCubeVert.size() * sizeof(glm::vec3), &scnCubeVert[0], GL_STATIC_DRAW);
 	*/
 
+
+	//GLuint vbo[2];
+	glBindVertexArray(vao[0]);
+	//glGenBuffers(2, vbo);
+	
 	
 	// these are for the scene cube
-	GLuint scnCubeColorbuffer[2];
-	glGenBuffers(2, &scnCubeColorbuffer[0]);
-	glBindBuffer(GL_ARRAY_BUFFER, scnCubeColorbuffer[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(scnCubeColorBufferData), scnCubeColorBufferData, GL_STATIC_DRAW);
 
-	GLuint scnCubeVertexbuffer[2];
-	glGenBuffers(2, &scnCubeVertexbuffer[0]);
-	glBindBuffer(GL_ARRAY_BUFFER, scnCubeVertexbuffer[0]);
+	GLuint scnCubeVertexbuffer;
+	glGenBuffers(1, &scnCubeVertexbuffer);
+
+	GLuint scnCubeColorbuffer;
+	glGenBuffers(1, &scnCubeColorbuffer);
+
+	glBindVertexArray(vao[0]);
+
+	// scn cube vertex buffer
+	glBindBuffer(GL_ARRAY_BUFFER, scnCubeVertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, scnCubeVert.size() * sizeof(glm::vec3), &scnCubeVert[0], GL_STATIC_DRAW);
-	
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(0);
+	// scn cube colour buffer
+	glBindBuffer(GL_ARRAY_BUFFER, scnCubeColorbuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(scnCubeColorBufferData), scnCubeColorBufferData, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(1);
 
+
+	glBindVertexArray(0);
+	
 	// these are for the big red sphere
-	//GLuint scnSphColorbuffer;
-	//glGenBuffers(1, &scnSphColorbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, scnCubeColorbuffer[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(scnSphColorBufferData), scnSphColorBufferData, GL_STATIC_DRAW);
 
-	//GLuint scnSphVertexbuffer;
-	//glGenBuffers(1, &scnSphVertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, scnCubeVertexbuffer[1]);
+	GLuint scnSphVertexbuffer;
+	glGenBuffers(1, &scnSphVertexbuffer);
+
+	GLuint scnSphColorbuffer;
+	glGenBuffers(1, &scnSphColorbuffer);
+
+	glBindVertexArray(vao[1]);
+
+	// SPH vertex buffer
+	glBindBuffer(GL_ARRAY_BUFFER, scnSphVertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, scnSphVert.size() * sizeof(glm::vec3), &scnSphVert[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(0);
+	// SPH colour buffer
+	glBindBuffer(GL_ARRAY_BUFFER, scnSphColorbuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(scnSphColorBufferData), scnSphColorBufferData, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(1);
+
+
+	glBindVertexArray(0);
 	
-
-
-	//GLuint vertexbuffer;
-	//glGenBuffers(1, &vertexbuffer);
-	//glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
 	// Enable blending used in transparency
 	glEnable(GL_BLEND);
@@ -475,8 +498,18 @@ int main(void)
 		// Send our transformation, to the currently bound shader,  in the "MVP" uniform
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
+		// camera code before this line
+
+		// draw the scn cube
+		glBindVertexArray(vao[0]);
+		glDrawArrays(GL_TRIANGLES, 0, 360);
+
+		// draw the big red sphere
+		glBindVertexArray(vao[1]);
+		glDrawArrays(GL_TRIANGLES, 0, 2880);
 
 
+		/*
 		// scene cube vertex buffer
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, scnCubeVertexbuffer[0]);
@@ -538,7 +571,7 @@ int main(void)
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 		 
-		
+		*/
 
 
 		
@@ -556,7 +589,7 @@ int main(void)
 	glDeleteBuffers(1, &scnCubeColorbuffer);
 	glDeleteBuffers(1, &scnSphVertexbuffer);
 	glDeleteBuffers(1, &scnSphColorbuffer);*/
-	glDeleteVertexArrays(1, &VertexArrayID);
+	glDeleteVertexArrays(2, vao);
 	glDeleteProgram(programID);
 
 	// Close OpenGL window and terminate GLFW
