@@ -8,6 +8,6 @@ uniform sampler2D myTextureSampler;
 
 void main(){
 
-	color = fragmentColor;
+	color = vec3(1,1,0,1);;
 	
 }

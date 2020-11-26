@@ -144,6 +144,12 @@ void computeMatricesFromInputs() {
 	lastTime = currentTime;
 }
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+// global variable to control the dynamic texture rendering
+bool tex = true;
+
+
 int main(void)
 {
 	// Initialise GLFW
@@ -185,16 +191,21 @@ int main(void)
 	// Black background
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
+	glfwSetKeyCallback(window, key_callback);
 
 
-	GLuint vao[2];
-	glGenVertexArrays(2, vao);
+	GLuint vao[3];
+	glGenVertexArrays(3, vao);
 
 
 	GLuint programID = LoadShaders("core.vs", "core.fs");
 
+	GLuint scnSPH = LoadShaders("SPH.vs", "SPH.fs");
+
 	// Get a handle for our "MVP" uniform
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
+
+	GLuint scnSPHMatrixID = glGetUniformLocation(scnSPH, "MVP");
 
 	// Projection matrix : 45° Field of View, 1:1 ratio, display range : 0.1 unit <-> 1000 units
 	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 1.0f / 1.0f, 0.1f, 1000.0f);
@@ -248,6 +259,9 @@ int main(void)
 
 
 	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
 
 	if (data)
 	{
@@ -313,6 +327,17 @@ int main(void)
 		scnSphColorBufferData[j + 3] = 1;
 	}
 
+	//test for texture sphere
+	GLfloat scnSphtexBufferData[2880 * 4];
+
+	for (int i = 0; i < 2880; i++) {
+		int j = i * 4;
+		scnSphtexBufferData[j] = 0;
+		scnSphtexBufferData[j + 1] = 0;
+		scnSphtexBufferData[j + 2] = 0;
+		scnSphtexBufferData[j + 3] = 0;
+	}
+
 
 	// these are for the scene cube
 
@@ -349,6 +374,9 @@ int main(void)
 	GLuint uvbuffer;
 	glGenBuffers(1, &uvbuffer);
 
+	GLuint uvcolbuffer;
+	glGenBuffers(1, &uvcolbuffer);
+
 	glBindVertexArray(vao[1]);
 
 	// SPH vertex buffer
@@ -361,15 +389,37 @@ int main(void)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(scnSphColorBufferData), scnSphColorBufferData, GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(1);
+	
+	glBindVertexArray(0);
+
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+
+	glBindVertexArray(vao[2]);
+
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	// SPH vertex buffer
+	glBindBuffer(GL_ARRAY_BUFFER, scnSphVertexbuffer);
+	glBufferData(GL_ARRAY_BUFFER, scnSphVert.size() * sizeof(glm::vec3), &scnSphVert[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(0);
+
+	/*
+	// SPH colour buffer
+	glBindBuffer(GL_ARRAY_BUFFER, uvcolbuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(scnSphtexBufferData), scnSphtexBufferData, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(1);*/
+
 	// SPH uv buffer (texture)
 	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
 	glBufferData(GL_ARRAY_BUFFER, scnSphUvs.size() * sizeof(glm::vec2), &scnSphUvs[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(2);
-
-
+	
 	glBindVertexArray(0);
-
+	//scnSphtexBufferData
 
 	// Enable blending used in transparency
 	glEnable(GL_BLEND);
@@ -378,6 +428,10 @@ int main(void)
 	bool spawn = true;
 
 	do {
+
+		// texture global var
+
+
 		// Clear the screen.
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -391,26 +445,52 @@ int main(void)
 		glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
 
 		// Send our transformation, to the currently bound shader,  in the "MVP" uniform
-		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+		if(true){ 
+
+			glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+		
+		}
+		else {
+			glUniformMatrix4fv(scnSPHMatrixID, 1, GL_FALSE, &MVP[0][0]);
+		}
+		
 
 		// camera code before this line
 
+
+		glUseProgram(programID);
 		// draw the scn cube
 		glBindVertexArray(vao[0]);
 		glDrawArrays(GL_TRIANGLES, 0, 360);
 
 
-		if (glfwGetKey(window, GLFW_KEY_SPACE) == true)
-		{
-			spawn = !spawn;
-		}
 
-		if (spawn == true)
+		if (tex == false)
 		{
+
+			glBindTexture(GL_TEXTURE_2D, texture);
+			glUseProgram(programID);
 			// draw the big red sphere
 			glBindVertexArray(vao[1]);
+			glBindTexture(GL_TEXTURE_2D, texture);
 			glDrawArrays(GL_TRIANGLES, 0, 2880);
 		}
+		else {
+		
+			// draw the big red sphere with texture
+			//glUseProgram(scnSPH);
+			glUseProgram(programID);
+
+			//glBindVertexArray(vao[2]);
+			//glDrawElements(GL_TRIANGLES, 2880, GL_UNSIGNED_INT, 0);
+
+
+			glBindVertexArray(vao[2]);
+			glDrawArrays(GL_TRIANGLES, 0, 2880);
+		
+		}
+
 
 
 
@@ -435,4 +515,20 @@ int main(void)
 	glfwTerminate();
 
 	return 0;
+}
+
+
+
+
+
+
+
+
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_T && action == GLFW_PRESS)
+	{
+		tex = !tex;
+	}
 }

@@ -4,11 +4,11 @@ layout(location = 1) in vec4 vertexColor;
 layout(location = 2) in vec2 texCoord;
 
 out vec4 fragmentColor;
-out vec2 fragmentTexCoord;
+out vec2 UV;
 
 uniform mat4 MVP;
 void main(){
     gl_Position =  MVP * vec4(vertexPosition_modelspace,1);
     fragmentColor = vertexColor;
-    fragmentTexCoord = texCoord;
+    UV = texCoord;
 }
