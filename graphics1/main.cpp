@@ -347,6 +347,7 @@ int main(void)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	bool spawn = false;
 
 	do {
 		// Clear the screen.
@@ -375,6 +376,17 @@ int main(void)
 		glDrawArrays(GL_TRIANGLES, 0, 2880);
 
 
+		if (glfwGetKey(window, GLFW_KEY_SPACE) == true)
+		{
+			spawn = true;
+		}
+
+		if (spawn == true)
+		{
+			// draw the big red sphere
+			glBindVertexArray(vao[1]);
+			glDrawArrays(GL_TRIANGLES, 0, 2880);
+		}
 
 
 
