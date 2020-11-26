@@ -7,6 +7,10 @@
 #include <sstream>
 #include <vector>
 
+// image loading library
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 //hello from iolkos
 //hello from NDG
 
@@ -235,13 +239,29 @@ int main(void)
 	std::vector<glm::vec3> cubNormals;
 	bool res5 = loadOBJ("cube.obj", cubVert, cubUvs, cubNormals);
 
+	// read the sphere texture
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load("texture-sphere.jpg", &width, &height, &nrChannels, 0);
 
-	/*
-	GLuint uvbuffer;
-	glGenBuffers(1, &uvbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-	glBufferData(GL_ARRAY_BUFFER, cylUvs.size() * sizeof(glm::vec2), &cylUvs[0], GL_STATIC_DRAW);
-	*/
+	unsigned int texture;
+	glGenTextures(1, &texture);
+
+
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load sphere texture" << std::endl;
+	}
+	stbi_image_free(data);
+	
+	
+	
 
 
 	// Our Model matrix
@@ -326,6 +346,9 @@ int main(void)
 	GLuint scnSphColorbuffer;
 	glGenBuffers(1, &scnSphColorbuffer);
 
+	GLuint uvbuffer;
+	glGenBuffers(1, &uvbuffer);
+
 	glBindVertexArray(vao[1]);
 
 	// SPH vertex buffer
@@ -338,6 +361,11 @@ int main(void)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(scnSphColorBufferData), scnSphColorBufferData, GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(1);
+	// SPH uv buffer (texture)
+	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+	glBufferData(GL_ARRAY_BUFFER, scnSphUvs.size() * sizeof(glm::vec2), &scnSphUvs[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(2);
 
 
 	glBindVertexArray(0);
@@ -347,7 +375,7 @@ int main(void)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	bool spawn = false;
+	bool spawn = true;
 
 	do {
 		// Clear the screen.
@@ -374,7 +402,7 @@ int main(void)
 
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == true)
 		{
-			spawn = true;
+			spawn = !spawn;
 		}
 
 		if (spawn == true)
