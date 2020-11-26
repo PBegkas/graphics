@@ -371,10 +371,6 @@ int main(void)
 		glBindVertexArray(vao[0]);
 		glDrawArrays(GL_TRIANGLES, 0, 360);
 
-		// draw the big red sphere
-		glBindVertexArray(vao[1]);
-		glDrawArrays(GL_TRIANGLES, 0, 2880);
-
 
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == true)
 		{
