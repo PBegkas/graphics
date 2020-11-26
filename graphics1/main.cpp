@@ -200,12 +200,10 @@ int main(void)
 
 	GLuint programID = LoadShaders("core.vs", "core.fs");
 
-	GLuint scnSPH = LoadShaders("SPH.vs", "SPH.fs");
 
 	// Get a handle for our "MVP" uniform
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 
-	GLuint scnSPHMatrixID = glGetUniformLocation(scnSPH, "MVP");
 
 	// Projection matrix : 45° Field of View, 1:1 ratio, display range : 0.1 unit <-> 1000 units
 	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 1.0f / 1.0f, 0.1f, 1000.0f);
@@ -447,24 +445,14 @@ int main(void)
 		glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
 
 		// Send our transformation, to the currently bound shader,  in the "MVP" uniform
-
-		if(true){ 
-
-			glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 		
-		}
-		else {
-			glUniformMatrix4fv(scnSPHMatrixID, 1, GL_FALSE, &MVP[0][0]);
-		}
 		
 
 		// camera code before this line
 
 
-		glUseProgram(programID);
-		// draw the scn cube
-		glBindVertexArray(vao[0]);
-		glDrawArrays(GL_TRIANGLES, 0, 360);
+		
 
 
 
@@ -479,7 +467,7 @@ int main(void)
 			glDrawArrays(GL_TRIANGLES, 0, 2880);
 		}
 		else {
-		
+
 			// draw the big red sphere with texture
 			//glUseProgram(scnSPH);
 			glUseProgram(programID);
@@ -487,13 +475,19 @@ int main(void)
 			//glBindVertexArray(vao[2]);
 			//glDrawElements(GL_TRIANGLES, 2880, GL_UNSIGNED_INT, 0);
 
-			
+
 			glBindVertexArray(vao[2]);
 			glDepthFunc(GL_LESS);
 			glDrawArrays(GL_TRIANGLES, 0, 2880);
 			glDepthFunc(GL_ALWAYS);
-		
+
 		}
+
+
+		glUseProgram(programID);
+		// draw the scn cube
+		glBindVertexArray(vao[0]);
+		glDrawArrays(GL_TRIANGLES, 0, 360);
 
 
 
