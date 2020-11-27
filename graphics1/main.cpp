@@ -77,14 +77,18 @@ float speed = 150.0f;
 float xmove= 0.0f;
 float ymove = 0.0f;
 float zmove = 0.0f;
+// timing
+float deltaTime = 0.0f;
+float lastTime = 0.0f;
 
+void time() {
+	// per-frame time logic, to standardise speed across computers
+	float currentFrame = glfwGetTime();
+	deltaTime = currentFrame - lastTime;
+	lastTime = currentFrame;
+}
 void SPH_movement() {
-
-	// glfwGetTime is called only once, the first time this function is called
-	static double lastTime = glfwGetTime();
-	// Compute time difference between current and last frame
-	double currentTime = glfwGetTime();
-	float deltaTime = float(currentTime - lastTime);
+	time();
 
     //Move on X axis
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
@@ -122,16 +126,10 @@ void SPH_movement() {
 
     // Pass movement to sphere
 	SPHModel = glm::translate(SPHModel, glm::vec3(xmove, ymove, zmove));
-
-	// For the next frame, the "last time" will be "now"
-	lastTime = currentTime;
 }
 
 void computeMatricesFromInputs() {
-
-	static double lastTime = glfwGetTime();
-	double currentTime = glfwGetTime();
-	float deltaTime = float(currentTime - lastTime);
+	time();
 
 	// Direction vector (Doesn't work, head doesnt cooperate)
 	/* glm::vec3 direction(
@@ -196,8 +194,6 @@ void computeMatricesFromInputs() {
 		vec3(0, head_pos, 0)// Head is up or down
 	);
 
-	// For the next frame, the "last time" will be "now"
-	lastTime = currentTime;
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
