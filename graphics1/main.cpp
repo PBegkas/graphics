@@ -43,7 +43,7 @@ glm::mat4 ViewMatrix;
 glm::mat4 ProjectionMatrix;
 glm::mat4 ModelMatrix;
 
-glm::mat4 SPHModel;
+glm::mat4 SPHModel = glm::mat4(1.0);;
 
 glm::mat4 getViewMatrix() {
 	return ViewMatrix;
@@ -74,9 +74,9 @@ float head_ang = 0.1f;
 // Movement speed; arbitrary value of 150 u/s
 float speed = 150.0f;
 // floats for sphere movement
-float xmove= 0.0f;
-float ymove = 0.0f;
-float zmove = 0.0f;
+float xmove= 0.1f;
+float ymove = 0.1f;
+float zmove = 0.1f;
 
 void SPH_movement() {
 
@@ -89,23 +89,23 @@ void SPH_movement() {
     //Move on X axis
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
 		if(-50 < xmove ){     //check for max movement to stay in the cube
-		xmove -= xmove * deltaTime * speed;
+		xmove -= xmove * deltaTime;
 		}
 	}
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 		if (50 > xmove) {
-			xmove += xmove * deltaTime * speed;
+			xmove += xmove * deltaTime;
 		}
 	}
 	//Move on Y axis
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		if (-50 < ymove) {
-			ymove -= ymove * deltaTime * speed;
+			ymove -= ymove * deltaTime;
 		}
 	}
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 		if (50 > ymove) {
-			ymove += ymove * deltaTime * speed;
+			ymove += ymove * deltaTime;
 		}
 	}
 	//Move on Z axis
@@ -500,8 +500,10 @@ int main(void)
 		glm::mat4 ModelMatrix = glm::mat4(1.0);
 		glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
 
+		
+
 		// Send our transformation, to the currently bound shader,  in the "MVP" uniform
-		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+		//glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 		
 		SPH_movement();
 		glm::vec4 tempSphere(1.0f, 1.0f, 1.0f, 1.0f);
@@ -509,14 +511,24 @@ int main(void)
 		//temp = glm::translate(temp , glm::vec3(xmove,ymove,zmove));
 		tempSphere = temp *tempSphere; // convert mat4 to vec4
 
+		printf("xmove %f\n", xmove);
+		printf("ymove %f\n", ymove);
+		printf("zmove %f\n", zmove);
 
+
+
+		glm::mat4 sphModelMatrix = glm::translate(ModelMatrix, glm::vec3(xmove, ymove, zmove));
+		glm::mat4 sphMVP = ProjectionMatrix * ViewMatrix * sphModelMatrix;
+
+		//glm::mat4 sphMVP = ProjectionMatrix * ViewMatrix * ModelMatrix * temp;
+		//glm::mat4 scnSph = MVP * temp;
 		// camera code before this line
 
 
 		
 
 
-
+		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &sphMVP[0][0]);
 		if (tex == false)
 		{
 
@@ -544,7 +556,7 @@ int main(void)
 
 		}
 
-
+		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 		glUseProgram(programID);
 		// draw the scn cube
 		glBindVertexArray(vao[0]);
