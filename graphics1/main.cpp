@@ -74,9 +74,9 @@ float head_ang = 0.1f;
 // Movement speed; arbitrary value of 150 u/s
 float speed = 150.0f;
 // floats for sphere movement
-float xmove= 0.1f;
-float ymove = 0.1f;
-float zmove = 0.1f;
+float xmove= 0.0f;
+float ymove = 0.0f;
+float zmove = 0.0f;
 
 void SPH_movement() {
 
@@ -88,35 +88,35 @@ void SPH_movement() {
 
     //Move on X axis
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-		if(-50 < xmove ){     //check for max movement to stay in the cube
-		xmove -= xmove * deltaTime;
+		if(-35 < xmove ){     //check for max movement to stay in the cube
+		xmove -= 0.2 * deltaTime * speed ;
 		}
 	}
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-		if (50 > xmove) {
-			xmove += xmove * deltaTime;
+		if (35 > xmove) {
+			xmove += 0.2 * deltaTime * speed ;
 		}
 	}
 	//Move on Y axis
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-		if (-50 < ymove) {
-			ymove -= ymove * deltaTime;
+		if (-35 < ymove) {
+			ymove -= 0.2 * deltaTime * speed ;
 		}
 	}
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-		if (50 > ymove) {
-			ymove += ymove * deltaTime;
+		if (35 > ymove) {
+			ymove += 0.2 * deltaTime * speed ;
 		}
 	}
 	//Move on Z axis
 	if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS) {
-		if (-50 < zmove) {
-			zmove -= zmove * deltaTime * speed;
+		if (-35 < zmove) {
+			zmove -= 0.2 * deltaTime * speed ;
 		}
 	}
 	if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS) {
-		if (50 > zmove) {
-			zmove += zmove * deltaTime * speed;
+		if (35 > zmove) {
+			zmove += 0.2 * deltaTime * speed ;
 		}
 	}
 
