@@ -11,9 +11,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-//hello from iolkos
-//hello from NDG
-
 // random lib is used to create random colours for the scene cube
 #include <random>
 
@@ -260,13 +257,6 @@ int main(void)
 
 	// Camera matrix
 	glm::mat4 View = ViewMatrix;
-	/* glm::mat4 View = glm::lookAt(
-		glm::vec3(-15, 0, -310), // Camera is at (-15, 0, -310) in World Space
-		glm::vec3(0, 0, 0), // and looks at the origin
-		glm::vec3(0, 1, 0)  // Head is up
-	);
-	View = glm::rotate(View, glm::radians(40.0f), glm::vec3(1.0, 0.0, 0.0));
-	*/
 
 	// read the scene cube
 	std::vector<glm::vec3> scnCubeVert;
@@ -375,7 +365,7 @@ int main(void)
 		scnSphColorBufferData[j + 3] = 1;
 	}
 
-	//test for texture sphere
+	//texture for the sphere
 	GLfloat scnSphtexBufferData[2880 * 4];
 
 	for (int i = 0; i < 2880; i++) {
@@ -497,25 +487,21 @@ int main(void)
 		
 
 		// Send our transformation, to the currently bound shader,  in the "MVP" uniform
-		//glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 		
 		SPH_movement();
 		glm::vec4 tempSphere(1.0f, 1.0f, 1.0f, 1.0f);
 		glm::mat4 temp = getSPHModel() ; // temporary sphere holder
-		//temp = glm::translate(temp , glm::vec3(xmove,ymove,zmove));
 		tempSphere = temp *tempSphere; // convert mat4 to vec4
 
-		printf("xmove %f\n", xmove);
-		printf("ymove %f\n", ymove);
-		printf("zmove %f\n", zmove);
+		//printf("xmove %f\n", xmove);
+		//printf("ymove %f\n", ymove);
+		//printf("zmove %f\n", zmove);
 
 
 
 		glm::mat4 sphModelMatrix = glm::translate(ModelMatrix, glm::vec3(xmove, ymove, zmove));
 		glm::mat4 sphMVP = ProjectionMatrix * ViewMatrix * sphModelMatrix;
 
-		//glm::mat4 sphMVP = ProjectionMatrix * ViewMatrix * ModelMatrix * temp;
-		//glm::mat4 scnSph = MVP * temp;
 		// camera code before this line
 
 
@@ -536,12 +522,7 @@ int main(void)
 		else {
 
 			// draw the big red sphere with texture
-			//glUseProgram(scnSPH);
 			glUseProgram(programID);
-
-			//glBindVertexArray(vao[2]);
-			//glDrawElements(GL_TRIANGLES, 2880, GL_UNSIGNED_INT, 0);
-
 
 			glBindVertexArray(vao[2]);
 			glDepthFunc(GL_LESS);
@@ -552,6 +533,7 @@ int main(void)
 
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 		glUseProgram(programID);
+
 		// draw the scn cube
 		glBindVertexArray(vao[0]);
 		glDrawArrays(GL_TRIANGLES, 0, 360);
@@ -570,6 +552,10 @@ int main(void)
 	glDeleteBuffers(1, &scnCubeColorbuffer);
 	glDeleteBuffers(1, &scnSphVertexbuffer);
 	glDeleteBuffers(1, &scnSphColorbuffer);
+	glDeleteBuffers(1, &uvbuffer);
+	glDeleteBuffers(1, &uvcolbuffer);
+
+	// Cleanup VAO
 	glDeleteVertexArrays(2, vao);
 	glDeleteProgram(programID);
 
@@ -584,9 +570,7 @@ int main(void)
 
 
 
-
-
-
+// catch a single press of the button 't' for use in the sphere  swap
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_T && action == GLFW_PRESS)
