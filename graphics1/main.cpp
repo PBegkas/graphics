@@ -61,8 +61,6 @@ glm::vec3 position = glm::vec3(50, 50, 500);
 glm::vec3 Look = glm::vec3(50, 50, 50);
 // Initial horizontal angle
 float horizontalAngle = 3.14f;
-// Initial vertical angle
-float verticalAngle = 0.0f;
 // Initial Field of View
 float initialFoV = 45.0f;
 // zoom for FoV change
@@ -133,35 +131,31 @@ void computeMatricesFromInputs() {
 	double currentTime = glfwGetTime();
 	float deltaTime = float(currentTime - lastTime);
 
-	// Direction vector (Doesn't work, head doesnt cooperate)
-	/* glm::vec3 direction(
-		//cos(verticalAngle) * sin(horizontalAngle),
-		0,
-		sin(verticalAngle),
-		cos(verticalAngle) * cos(horizontalAngle)
-		//2 * cos(verticalAngle - 3.14f / 2.0f)
-	);*/
+	// vector for Z axis movement
+	glm::vec3 direction = glm::vec3(0.0f, 0.0f, -1.0f);
 
-	// Right vector
+	//  vector for XZ plane movement (orbit style)
 	glm::vec3 right = glm::vec3(
 		2 * sin(horizontalAngle - 3.14f / 2.0f),
 		0,
 		2 * cos(horizontalAngle - 3.14f / 2.0f)
 	);
-	/*
-	// Rotate up
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-		verticalAngle += 0.01;
+
+	//vector for camera head
+	glm::vec3 up = glm::vec3(0, head_pos, 0);
+
+	
+	// Zoom in (Z axis)
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		head_ang += 0.01;
 		position += direction * deltaTime * speed;
 	}
-	// Rotate down
-	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
-		verticalAngle -= 0.01;
+	// Zoom out (Zaxis)
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
 		head_ang += 0.01;
 		position -= direction * deltaTime * speed;
 	}
-	*/
+	
 	// Rotate right
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 		horizontalAngle += (float)0.01;
@@ -172,12 +166,12 @@ void computeMatricesFromInputs() {
 		horizontalAngle -= (float)0.01;
 		position -= right * deltaTime * speed;
 	}
-	// Zoom in
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+	// Zoom in (FoV)
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
 		initialFoV -= zoomAngle * deltaTime * speed * 0.1f;
 	}
-	// zoom out
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+	// zoom out (FoV)
+	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
 		initialFoV += zoomAngle * deltaTime * speed * 0.1f;
 	}
 	if (head_ang - (0.785 * floor(head_ang / 0.785)) == 0) {
@@ -191,9 +185,9 @@ void computeMatricesFromInputs() {
 	ProjectionMatrix = glm::perspective(glm::radians(FoV), 1.0f / 1.0f, 0.1f, 1000.0f);
 	// Camera matrix
 	ViewMatrix = glm::lookAt(
-		position,           // camera is here
-		Look,			    // looks here
-		vec3(0, head_pos, 0)// Head is up or down
+		position  + direction,  // camera is here
+		Look,			               // looks here
+		up                             // Head is up or down
 	);
 
 	// For the next frame, the "last time" will be "now"
@@ -203,7 +197,7 @@ void computeMatricesFromInputs() {
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 // global variable to control the dynamic texture rendering
-bool tex = true;
+bool tex = false;
 
 
 int main(void)
