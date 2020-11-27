@@ -43,12 +43,18 @@ glm::mat4 ViewMatrix;
 glm::mat4 ProjectionMatrix;
 glm::mat4 ModelMatrix;
 
+glm::mat4 SPHModel;
+
 glm::mat4 getViewMatrix() {
 	return ViewMatrix;
 }
 glm::mat4 getProjectionMatrix() {
 	return ProjectionMatrix;
 }
+glm::mat4 getSPHModel() {
+	return SPHModel;
+}
+
 
 // Initial position : on +Z
 glm::vec3 position = glm::vec3(50, 50, 500);
@@ -67,13 +73,63 @@ float head_pos = 1.0f;
 float head_ang = 0.1f;
 // Movement speed; arbitrary value of 150 u/s
 float speed = 150.0f;
+// floats for sphere movement
+float xmove= 0.0f;
+float ymove = 0.0f;
+float zmove = 0.0f;
 
-void computeMatricesFromInputs() {
+void SPH_movement() {
 
 	// glfwGetTime is called only once, the first time this function is called
 	static double lastTime = glfwGetTime();
-
 	// Compute time difference between current and last frame
+	double currentTime = glfwGetTime();
+	float deltaTime = float(currentTime - lastTime);
+
+    //Move on X axis
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+		if(-50 < xmove ){     //check for max movement to stay in the cube
+		xmove -= xmove * deltaTime * speed;
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+		if (50 > xmove) {
+			xmove += xmove * deltaTime * speed;
+		}
+	}
+	//Move on Y axis
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+		if (-50 < ymove) {
+			ymove -= ymove * deltaTime * speed;
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+		if (50 > ymove) {
+			ymove += ymove * deltaTime * speed;
+		}
+	}
+	//Move on Z axis
+	if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS) {
+		if (-50 < zmove) {
+			zmove -= zmove * deltaTime * speed;
+		}
+	}
+	if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS) {
+		if (50 > zmove) {
+			zmove += zmove * deltaTime * speed;
+		}
+	}
+
+    // Pass movement to sphere
+	SPHModel = glm::translate(SPHModel, glm::vec3(xmove, ymove, zmove));
+
+	// For the next frame, the "last time" will be "now"
+	lastTime = currentTime;
+}
+
+void computeMatricesFromInputs() {
+
+	static double lastTime = glfwGetTime();
 	double currentTime = glfwGetTime();
 	float deltaTime = float(currentTime - lastTime);
 
@@ -447,7 +503,12 @@ int main(void)
 		// Send our transformation, to the currently bound shader,  in the "MVP" uniform
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 		
-		
+		SPH_movement();
+		glm::vec4 tempSphere(1.0f, 1.0f, 1.0f, 1.0f);
+		glm::mat4 temp = getSPHModel() ; // temporary sphere holder
+		//temp = glm::translate(temp , glm::vec3(xmove,ymove,zmove));
+		tempSphere = temp *tempSphere; // convert mat4 to vec4
+
 
 		// camera code before this line
 
